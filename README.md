@@ -1,2 +1,0 @@
-# repositorio-PSP
-repositorio-PSP
