@@ -6,18 +6,26 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <signal.h>
 
+//Constantes
 #define SIZE 512
+
 //Funciones prototipo
-void codigo_hijo(int, int);
-void codigo_padre(pid_t, int);
+void codigo_hijo(int);
+void codigo_padre(pid_t);
+void manejador(int signum);
+
+//Variables globales
+int t[2], t2[2];
+char mensaje[SIZE];
 
 int main(void){
     pid_t pid;
-    int t[2], t2[2], readbytes, random;
+    int readbytes, random;
     char buffer[SIZE];
 
-    pipe(t); //Se crea la tuberia
+    pipe(t); 
     pipe(t2); //2 tuberia
 
     srand(time(NULL)); //Altero la semilla de numeros aleatorios en base al tiempo
@@ -31,32 +39,56 @@ int main(void){
             break;
 
         case 0:
-        close (t[1]); //Escribe hijo
-        close (t2[0]);//Lee hijo
-            codigo_hijo(random, t2[0]);
-            break;
+        close (t2[1]);//Lee hijo
+        close (t[0]); //escribe hijo
+        codigo_hijo(random);
+        break;
 
         default:
-        close (t[0]); //Lee padre
-        close (t2[1]);//EScribe padre
-            codigo_padre(pid, t2[1]);
-            break;
+        close (t2[0]);//EScribe padre
+        close (t[1]); //lee padre
+        codigo_padre(pid);
+        break;
     }
     return 0;
 }
 
-void codigo_hijo(int ns, int tuberiaLectura){
+void codigo_hijo(int random){
     char textoHijo[200];
     int bytesleidos;
 
-    printf("hola soy el hijo: %d\n", ns);
-    while(bytesleidos = read(tuberiaLectura, textoHijo, 200) > 0)
-    wwite(1, textoHijo, bytesleidos);
+    printf("hola soy el hijo: %d\n", random);
+
+    while(bytesleidos = read(t2[0], textoHijo, 200) > 0)
+    write(1, textoHijo, bytesleidos);
+
 }
 
-void codigo_padre(pid_t pid, int tuberiaEscritura){
-    char textoPapa[] ="asa";
+void codigo_padre(pid_t pid){
+    signal(SIGUSR2, manejador);
 
-    printf("hola soy el padre mi hijo tiene este PID=%d\n", pid);
-    write(tuberiaEscritura, textoPapa, strnlen(textoPapa));
+    strcpy(mensaje, "HOLA HIJO");
+    write(t2[1], mensaje, strlen(mensaje));
+
+    //ENVIA SEÑAL AL HIJO POR EL MANEJADOR
+    kill(pid,SIGUSR1);
+
+    //ESPERA A QUE EL HIJO TERMINE
+    wait(NULL);
+}
+
+void manejador (int signum){
+    int bytesrecibidos;
+    if(signum==SIGUSR1) //Señal que envia el padre al hijo
+    {
+        printf("Soy el hijo, He recibido esto\n");
+        while(bytesrecibidos = read(t2[0], mensaje, SIZE)>0);
+            write(1, mensaje, bytesrecibidos);
+
+    }else if(signum==SIGUSR2) //Señal que envia el hijo al padre
+    {
+    }else{
+        printf("Recibi una seña desconocida\n");
+    }
+
 }
