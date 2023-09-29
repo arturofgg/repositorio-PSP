@@ -28,6 +28,10 @@ int main(void){
     pipe(t); 
     pipe(t2); //2 tuberia
 
+    signal(SIGUSR1, manejador);
+    signal(SIGUSR2, manejador);
+
+
     srand(time(NULL)); //Altero la semilla de numeros aleatorios en base al tiempo
     random=rand() % 101; //numero entre 0 y 100
 
@@ -39,17 +43,17 @@ int main(void){
             break;
 
         case 0:
-        close (t2[1]);//Lee hijo
-        close (t[0]); //escribe hijo
-        codigo_hijo(random);
-        break;
+            close (t2[1]);//Lee hijo
+            close (t[0]); //escribe hijo
+            codigo_hijo(random);
+            break;
 
         default:
-        close (t2[0]);//EScribe padre
-        close (t[1]); //lee padre
-        sleep(1);
-        codigo_padre(pid);
-        break;
+            close (t2[0]);//EScribe padre
+            close (t[1]); //lee padre
+            sleep(1);
+            codigo_padre(pid);
+            break;
     }
     return 0;
 }
@@ -63,10 +67,10 @@ void codigo_hijo(int random){
     while(bytesleidos = read(t2[0], textoHijo, 200) > 0)
     write(1, textoHijo, bytesleidos);
 
+     close(t2[0]);
 }
 
 void codigo_padre(pid_t pid){
-    signal(SIGUSR2, manejador);
 
     strcpy(mensaje, "HOLA HIJO");
     write(t2[1], mensaje, strlen(mensaje));
@@ -75,7 +79,9 @@ void codigo_padre(pid_t pid){
     kill(pid,SIGUSR1);
 
     //ESPERA A QUE EL HIJO TERMINE
-    wait(NULL);
+    waitpid(pid, NULL, 0);
+
+    close(t2[1]);
 }
 
 void manejador (int signum){
@@ -83,7 +89,7 @@ void manejador (int signum){
     if(signum==SIGUSR1) //Señal que envia el padre al hijo
     {
         printf("Soy el hijo, He recibido esto\n");
-        while(bytesrecibidos = read(t2[0], mensaje, SIZE)>0);
+        while(bytesrecibidos = read(t2[0], mensaje, SIZE)>0)
             write(1, mensaje, bytesrecibidos);
 
     }else if(signum==SIGUSR2) //Señal que envia el hijo al padre
