@@ -47,6 +47,7 @@ int main(void){
         default:
         close (t2[0]);//EScribe padre
         close (t[1]); //lee padre
+        sleep(1);
         codigo_padre(pid);
         break;
     }
