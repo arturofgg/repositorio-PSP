@@ -3,12 +3,12 @@ package Principal;
 public class Cliente extends Thread
 {
 	private int id;
-	private SalaDeEspera SalaDeEspera;
+	private Barberia Barberia;
 
-	public Cliente(int id, SalaDeEspera SalaDeEspera) 
+	public Cliente(int id, Barberia Barberia) 
 	{
 		this.id=id;
-		this.SalaDeEspera = SalaDeEspera;
+		this.Barberia = Barberia;
 	}
 	
 	public int getIdentificador() {
@@ -18,19 +18,14 @@ public class Cliente extends Thread
 	public void run() 
 	{
 		boolean exito;
-		exito = SalaDeEspera.entrar();
+		exito = Barberia.entrar();
 		if(exito==true)
 		{
 			try {
-				SalaDeEspera.sentarseEnSillaBarbero();
-				//System.out.println("El cliente "+((Cliente)Thread.currentThread()).getIdentificador()+ " es atendido");
-				System.out.println("El cliente "+id+ " comienza de ser atendido");
-				sleep(5000);
+				System.out.println("El cliente "+id+" se sienta a esperar");
+				Barberia.sentarseEnSillaBarbero();
 				System.out.println("El cliente "+id+ " termina de ser atendido");
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} catch (InterruptedException e) {e.printStackTrace();}
 		}
 		else
 		{

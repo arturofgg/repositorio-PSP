@@ -1,14 +1,25 @@
 package Principal;
 
-public class Barbero {
+public class Barbero extends Thread
+{
 
-	public Barbero() {
-		// TODO Auto-generated constructor stub
+	private Barberia barberia;
+	private boolean fin;
+	
+	public Barbero(Barberia barberia) {
+		this.barberia = barberia;
+		this.fin = false;
 	}
-
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	
+	public void run()
+	{	
+		while(!fin) 
+		{
+			try {
+				barberia.atenderCliente();
+				sleep(5000); //Simula el tiempo que tarda en atender al cliente
+				barberia.finAtenderCliente();
+			} catch (InterruptedException e) { e.printStackTrace();}
+		}
 	}
-
 }
