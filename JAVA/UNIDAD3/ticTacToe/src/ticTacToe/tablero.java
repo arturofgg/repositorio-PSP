@@ -3,7 +3,7 @@ package ticTacToe;
 public class tablero 
 {
 	char t[][];
-	private boolean final_partida;
+	public boolean final_partida;
 	
 	public tablero()
 	 {
