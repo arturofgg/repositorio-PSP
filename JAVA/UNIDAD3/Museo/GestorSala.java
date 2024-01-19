@@ -1,5 +1,4 @@
 public class GestorSala {
-    private static final int CAPACIDAD_NORMAL = 50;
     private static final int CAPACIDAD_REDUCIDA = 35;
     private static final int TEMPERATURA_UMBRAL = 30;
 
